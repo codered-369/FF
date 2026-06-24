@@ -36,10 +36,15 @@ export async function POST(request: Request) {
 
     if (file && file.size > 0) {
       if (process.env.BLOB_READ_WRITE_TOKEN) {
-        const blob = await put(file.name, file, { access: 'public' });
-        screenshotUrl = blob.url;
+        try {
+          const blob = await put(file.name, file, { access: 'public' });
+          screenshotUrl = blob.url;
+        } catch (blobError: any) {
+          console.error("Vercel Blob Upload Error:", blobError);
+          return NextResponse.json({ error: 'Blob Upload Failed: ' + blobError.message }, { status: 500 });
+        }
       } else {
-        console.warn("Vercel Blob not connected. Image upload skipped.");
+        return NextResponse.json({ error: 'BLOB_READ_WRITE_TOKEN is missing on Vercel.' }, { status: 500 });
       }
     }
 
