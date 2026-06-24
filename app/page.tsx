@@ -66,7 +66,8 @@ export default function Home() {
         // Scroll to feed
         document.getElementById('feed')?.scrollIntoView({ behavior: 'smooth' });
       } else {
-        alert("Failed to submit entry.");
+        const errorData = await res.json();
+        alert("Failed to submit entry: " + (errorData.error || "Unknown Error"));
       }
     } catch (err) {
       alert("An error occurred.");
