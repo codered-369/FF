@@ -9,6 +9,10 @@ export default function Home() {
   const [fileName, setFileName] = useState("Upload Screenshot Proof");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Professional Features State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activePlatformFilter, setActivePlatformFilter] = useState("All");
+
   const fetchPosts = async () => {
     try {
       const res = await fetch("/api/posts");
@@ -25,15 +29,6 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  // Convert file to Base64
-  const toBase64 = (file: File) =>
-    new Promise<string | null>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFileName(e.target.files[0].name);
@@ -47,15 +42,11 @@ export default function Home() {
     setSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
-    const username = formData.get("username") as string;
-    const platform = formData.get("platform") as string;
-    const comment = formData.get("comment") as string;
-    const file = formData.get("screenshot") as File;
 
     try {
       const res = await fetch("/api/posts", {
         method: "POST",
-        body: formData, // Send FormData directly
+        body: formData,
       });
 
       if (res.ok) {
@@ -63,7 +54,6 @@ export default function Home() {
         setFileName("Upload Screenshot Proof");
         fetchPosts();
         
-        // Scroll to feed
         document.getElementById('feed')?.scrollIntoView({ behavior: 'smooth' });
       } else {
         const errorData = await res.json();
@@ -88,7 +78,6 @@ export default function Home() {
       });
 
       if (res.ok) {
-        // Remove from UI immediately
         setPosts(posts.filter(p => p.id !== id));
       } else {
         const errorData = await res.json();
@@ -99,6 +88,26 @@ export default function Home() {
     }
   };
 
+  // Derived State for Stats
+  const totalEvidence = posts.length;
+  const platformCounts = posts.reduce((acc, post) => {
+    acc[post.platform] = (acc[post.platform] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const mostReportedPlatform = Object.keys(platformCounts).length > 0 
+    ? Object.keys(platformCounts).reduce((a, b) => platformCounts[a] > platformCounts[b] ? a : b) 
+    : "None";
+
+  // Derived State for Filtering
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch = post.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          post.comment.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPlatform = activePlatformFilter === "All" || post.platform === activePlatformFilter;
+    return matchesSearch && matchesPlatform;
+  });
+
+  const platforms = ["All", "X (Twitter)", "Instagram", "Facebook", "Reddit", "Other"];
+
   return (
     <>
       <div className="background-elements">
@@ -107,19 +116,60 @@ export default function Home() {
       </div>
 
       <header style={{ textAlign: "center", padding: "4rem 1rem 2rem" }}>
-        <div style={{ margin: "0 auto", maxWidth: "600px" }}>
+        <div style={{ margin: "0 auto", maxWidth: "800px" }}>
+          
+          {/* Live Stats Dashboard */}
+          <div style={{ 
+            display: "flex", justifyContent: "center", gap: "2rem", marginBottom: "2rem",
+            background: "rgba(255,255,255,0.02)", padding: "1.5rem", borderRadius: "15px",
+            border: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap",
+            boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)", backdropFilter: "blur(5px)"
+          }}>
+            <div style={{ textAlign: "center", padding: "0 1rem" }}>
+              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem" }}>Total Evidence Collected</div>
+              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-red)" }}>{totalEvidence}</div>
+            </div>
+            <div style={{ width: "1px", background: "rgba(255,255,255,0.1)" }}></div>
+            <div style={{ textAlign: "center", padding: "0 1rem" }}>
+              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem" }}>Most Reported Platform</div>
+              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-purple)" }}>{mostReportedPlatform}</div>
+            </div>
+          </div>
+
           <h1 style={{ fontSize: "3.5rem", fontWeight: 800, marginBottom: "0.5rem" }}>
             Truth<span style={{ color: "var(--accent-purple)" }}>Board</span>
           </h1>
           <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>
-            Bringing internet accountability to light. Share public remarks to warn others.
-            (Vercel Ready)
+            Bringing internet accountability to light. Search the database or share evidence to warn others.
           </p>
+
+          {/* Search Bar */}
+          <div style={{ marginTop: "2.5rem", position: "relative", maxWidth: "550px", margin: "2.5rem auto 0" }}>
+            <span style={{ position: "absolute", left: "1.5rem", top: "50%", transform: "translateY(-50%)", fontSize: "1.2rem", opacity: 0.5 }}>🔍</span>
+            <input 
+              type="text" 
+              placeholder="Search by username or keyword..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: "100%", padding: "1.2rem 1.2rem 1.2rem 3.5rem",
+                background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "30px", color: "#fff", fontSize: "1.1rem",
+                boxShadow: "0 0 20px rgba(139, 92, 246, 0.1)", transition: "all 0.3s ease",
+                outline: "none"
+              }}
+              onFocus={(e) => e.target.style.boxShadow = "0 0 25px rgba(139, 92, 246, 0.3)"}
+              onBlur={(e) => e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.1)"}
+            />
+          </div>
+
         </div>
       </header>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem 4rem", display: "grid", gap: "3rem", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
-        <section className="glass-panel" style={{ padding: "2rem" }}>
+        
+        {/* Add Entry Section */}
+        <section className="glass-panel" style={{ padding: "2rem", height: "fit-content" }}>
           <h2 style={{ fontSize: "1.8rem", marginBottom: "1.5rem" }}>Add an Entry</h2>
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             <div>
@@ -147,8 +197,11 @@ export default function Home() {
               <label style={{ 
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "0.8rem", 
                 padding: "1.2rem", border: "1px dashed rgba(255, 255, 255, 0.2)", borderRadius: "10px", 
-                cursor: "pointer", background: "rgba(255,255,255,0.03)" 
-              }}>
+                cursor: "pointer", background: "rgba(255,255,255,0.03)", transition: "background 0.3s ease"
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+              >
                 <span style={{ fontSize: "1.5rem" }}>📸</span>
                 <span style={{ color: fileName !== "Upload Screenshot Proof" ? "var(--accent-purple)" : "inherit" }}>
                   {fileName}
@@ -170,26 +223,51 @@ export default function Home() {
           </form>
         </section>
 
-        <section id="feed">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <h2 style={{ fontSize: "1.8rem" }}>Recent Entries</h2>
+        {/* Feed Section */}
+        <section id="feed" style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+            <h2 style={{ fontSize: "1.8rem" }}>Database Log</h2>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--accent-red)", background: "rgba(239, 68, 68, 0.1)", padding: "0.4rem 0.8rem", borderRadius: "20px", fontWeight: 600, fontSize: "0.9rem" }}>
-              <span className="pulse"></span> Live Feed
+              <span className="pulse"></span> Live Update
             </div>
+          </div>
+
+          {/* Platform Filters */}
+          <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", paddingBottom: "1rem", marginBottom: "1rem" }} className="hide-scrollbar">
+            {platforms.map(platform => (
+              <button
+                key={platform}
+                onClick={() => setActivePlatformFilter(platform)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: activePlatformFilter === platform ? "var(--accent-purple)" : "rgba(0,0,0,0.3)",
+                  color: "#fff",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                {platform}
+              </button>
+            ))}
           </div>
           
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             {loading ? (
-              <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "2rem" }}>Loading evidence...</div>
-            ) : posts.length === 0 ? (
-              <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "2rem" }}>No entries yet. Be the first to add one.</div>
+              <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "2rem" }}>Loading database...</div>
+            ) : filteredPosts.length === 0 ? (
+              <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "2rem", background: "rgba(0,0,0,0.2)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                No entries match your criteria.
+              </div>
             ) : (
-              posts.map((post, i) => (
-                <div key={post.id} className="post-card" style={{ animationDelay: `${i * 0.1}s` }}>
+              filteredPosts.map((post, i) => (
+                <div key={post.id} className="post-card" style={{ animationDelay: `${i * 0.05}s` }}>
                   <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontWeight: 700, fontSize: "1.1rem" }}>{post.username}</span>
-                      <span style={{ fontSize: "0.85rem", color: "var(--accent-purple)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>{post.platform}</span>
+                      <span style={{ fontWeight: 700, fontSize: "1.2rem", letterSpacing: "0.5px" }}>{post.username}</span>
+                      <span style={{ fontSize: "0.85rem", color: "var(--accent-purple)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{post.platform}</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                       <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
@@ -197,19 +275,21 @@ export default function Home() {
                       </span>
                       <button 
                         onClick={() => handleDelete(post.id)}
-                        style={{ background: "transparent", border: "none", color: "var(--accent-red)", cursor: "pointer", fontSize: "1.1rem", opacity: 0.7 }}
+                        style={{ background: "transparent", border: "none", color: "var(--accent-red)", cursor: "pointer", fontSize: "1.1rem", opacity: 0.7, transition: "opacity 0.2s" }}
                         title="Admin Delete"
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = "0.7"}
                       >
                         🗑️
                       </button>
                     </div>
                   </div>
                   <div style={{ padding: "1.5rem" }}>
-                    <div style={{ fontSize: "1.05rem", color: "#e4e4e7", marginBottom: "1.5rem", whiteSpace: "pre-wrap" }}>
-                      {post.comment}
+                    <div style={{ fontSize: "1.05rem", color: "#e4e4e7", marginBottom: "1.5rem", whiteSpace: "pre-wrap", lineHeight: 1.6, fontStyle: "italic" }}>
+                      "{post.comment}"
                     </div>
                     {post.screenshot && (
-                      <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden", background: "rgba(0,0,0,0.5)" }}>
+                      <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}>
                         <img src={post.screenshot} alt="Evidence" style={{ width: "100%", height: "auto", display: "block" }} />
                       </div>
                     )}
