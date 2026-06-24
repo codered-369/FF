@@ -52,26 +52,10 @@ export default function Home() {
     const comment = formData.get("comment") as string;
     const file = formData.get("screenshot") as File;
 
-    let base64Image = null;
-    if (file && file.size > 0) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("Image must be smaller than 2MB for this demo.");
-        setSubmitting(false);
-        return;
-      }
-      base64Image = await toBase64(file);
-    }
-
     try {
       const res = await fetch("/api/posts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          platform,
-          comment,
-          screenshot: base64Image,
-        }),
+        body: formData, // Send FormData directly
       });
 
       if (res.ok) {
