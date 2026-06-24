@@ -75,6 +75,29 @@ export default function Home() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    const password = prompt("Enter Admin Password to delete this post:");
+    if (!password) return;
+
+    try {
+      const res = await fetch("/api/posts", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, password })
+      });
+
+      if (res.ok) {
+        // Remove from UI immediately
+        setPosts(posts.filter(p => p.id !== id));
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to delete post");
+      }
+    } catch (err) {
+      alert("An error occurred while deleting.");
+    }
+  };
+
   return (
     <>
       <div className="background-elements">
@@ -167,9 +190,18 @@ export default function Home() {
                       <span style={{ fontWeight: 700, fontSize: "1.1rem" }}>{post.username}</span>
                       <span style={{ fontSize: "0.85rem", color: "var(--accent-purple)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>{post.platform}</span>
                     </div>
-                    <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      {new Date(post.date).toLocaleDateString()}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        {new Date(post.date).toLocaleDateString()}
+                      </span>
+                      <button 
+                        onClick={() => handleDelete(post.id)}
+                        style={{ background: "transparent", border: "none", color: "var(--accent-red)", cursor: "pointer", fontSize: "1.1rem", opacity: 0.7 }}
+                        title="Admin Delete"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                   <div style={{ padding: "1.5rem" }}>
                     <div style={{ fontSize: "1.05rem", color: "#e4e4e7", marginBottom: "1.5rem", whiteSpace: "pre-wrap" }}>
