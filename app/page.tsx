@@ -352,7 +352,7 @@ export default function Home() {
                   <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                       <Link 
-                        href={`/user/${post.username.replace(/^@/, '').trim()}`}
+                        href={`/user/${encodeURIComponent(post.username.replace(/^@/, '').trim())}`}
                         style={{ fontWeight: 700, fontSize: "1.2rem", letterSpacing: "0.5px", color: "var(--accent-purple)", textDecoration: "none" }}
                         title={`View ${post.username}'s Profile`}
                       >
