@@ -208,7 +208,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem 4rem", display: "grid", gap: "3rem", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+      <main style={{ maxWidth: "800px", margin: "0 auto", padding: "0 1.5rem 4rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
         
         {/* Add Entry Section */}
         <section className="glass-panel" style={{ padding: "2rem", height: "fit-content" }}>
