@@ -169,7 +169,7 @@ export default function Home() {
           }}>
             <div style={{ textAlign: "center", padding: "0 1rem" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem" }}>
-                <span style={{ fontSize: "1.1rem" }}>👁️</span> Total Reports Submitted
+                <span style={{ fontSize: "1.1rem" }}>📋</span> Total Reports Submitted
               </div>
               <div style={{ fontSize: "2.5rem", fontWeight: "800", color: "var(--accent-red)", textShadow: "0 0 20px rgba(239, 68, 68, 0.4)" }}>{totalEvidence}</div>
             </div>

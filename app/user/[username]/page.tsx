@@ -88,7 +88,7 @@ export default function UserProfile() {
             <div style={{ display: "flex", justifyContent: "center", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
               <div style={{ textAlign: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem", fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                  <span>👁️</span> Reports
+                  <span>📋</span> Reports
                 </div>
                 <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-red)" }}>{totalReports}</div>
               </div>

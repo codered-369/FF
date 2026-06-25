@@ -8,6 +8,7 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-heading" });
 export const metadata: Metadata = {
   title: "TruthBoard - Public Accountability Platform",
   description: "Bringing internet accountability to light. Search the database or share evidence to warn others about toxic behavior, scams, and harassment.",
+  keywords: ["scam alert", "public accountability", "expose truth", "internet safety", "toxic behavior tracker", "scammer database", "report scams", "hall of shame", "online warnings"],
   openGraph: {
     title: "TruthBoard - Public Accountability Platform",
     description: "Bringing internet accountability to light. Search the database or share evidence to warn others.",
