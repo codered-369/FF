@@ -12,6 +12,7 @@ export default function Home() {
   // Professional Features State
   const [searchQuery, setSearchQuery] = useState("");
   const [activePlatformFilter, setActivePlatformFilter] = useState("All");
+  const [activeMonthFilter, setActiveMonthFilter] = useState("All Time");
 
   const fetchPosts = async () => {
     try {
@@ -114,13 +115,23 @@ export default function Home() {
     ? Object.keys(platformCounts).reduce((a, b) => platformCounts[a] > platformCounts[b] ? a : b) 
     : "None";
 
+  // Derive Unique Months for Archives
+  const uniqueMonths = Array.from(new Set(posts.map(post => {
+    const date = new Date(post.date);
+    return date.toLocaleString('default', { month: 'long', year: 'numeric' });
+  })));
+
   // Derived State for Filtering
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           post.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (post.category && post.category.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesPlatform = activePlatformFilter === "All" || post.platform === activePlatformFilter;
-    return matchesSearch && matchesPlatform;
+    
+    const postMonth = new Date(post.date).toLocaleString('default', { month: 'long', year: 'numeric' });
+    const matchesMonth = activeMonthFilter === "All Time" || postMonth === activeMonthFilter;
+
+    return matchesSearch && matchesPlatform && matchesMonth;
   });
 
   const platforms = ["All", "X (Twitter)", "Instagram", "Facebook", "Reddit", "Other"];
@@ -284,8 +295,24 @@ export default function Home() {
         <section id="feed" style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
             <h2 style={{ fontSize: "1.8rem" }}>Database Log</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--accent-red)", background: "rgba(239, 68, 68, 0.1)", padding: "0.4rem 0.8rem", borderRadius: "20px", fontWeight: 600, fontSize: "0.9rem" }}>
-              <span className="pulse"></span> Live Update
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <select 
+                value={activeMonthFilter} 
+                onChange={(e) => setActiveMonthFilter(e.target.value)}
+                style={{
+                  background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#fff", padding: "0.4rem 1rem", borderRadius: "8px", outline: "none",
+                  cursor: "pointer", fontSize: "0.9rem"
+                }}
+              >
+                <option value="All Time">All Time Archives</option>
+                {uniqueMonths.map(month => (
+                  <option key={month} value={month}>{month}</option>
+                ))}
+              </select>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--accent-red)", background: "rgba(239, 68, 68, 0.1)", padding: "0.4rem 0.8rem", borderRadius: "20px", fontWeight: 600, fontSize: "0.9rem" }}>
+                <span className="pulse"></span> Live
+              </div>
             </div>
           </div>
 
