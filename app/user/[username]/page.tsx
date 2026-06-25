@@ -36,7 +36,8 @@ export default function UserProfile() {
   }, [targetUsername]);
 
   const getProfileUrl = (platform: string, username: string) => {
-    const cleanUsername = username.replace(/^@/, '').trim();
+    // Strip @, and take only the first part before a space or slash
+    const cleanUsername = username.replace(/^@/, '').split(/[\s/]+/)[0].trim();
     switch (platform) {
       case "X (Twitter)": return `https://x.com/${cleanUsername}`;
       case "Instagram": return `https://instagram.com/${cleanUsername}`;
