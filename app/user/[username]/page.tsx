@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
-export default function UserProfile({ params }: { params: { username: string } }) {
+export default function UserProfile() {
+  const params = useParams();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // The username from the URL
-  const targetUsername = decodeURIComponent(params.username).replace(/^@/, '').trim();
+  const rawUsername = Array.isArray(params.username) ? params.username[0] : (params.username || "");
+  const targetUsername = decodeURIComponent(rawUsername).replace(/^@/, '').trim();
 
   const fetchPosts = async () => {
     try {
