@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -350,15 +351,13 @@ export default function Home() {
                 <div key={post.id} className="post-card" style={{ animationDelay: `${i * 0.05}s` }}>
                   <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <a 
-                        href={getProfileUrl(post.platform, post.username)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      <Link 
+                        href={`/user/${post.username.replace(/^@/, '').trim()}`}
                         style={{ fontWeight: 700, fontSize: "1.2rem", letterSpacing: "0.5px", color: "var(--accent-purple)", textDecoration: "none" }}
-                        title={`View ${post.username} on ${post.platform}`}
+                        title={`View ${post.username}'s Profile`}
                       >
                         {post.username} ↗
-                      </a>
+                      </Link>
                       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{post.platform}</span>
                         {post.category && (
