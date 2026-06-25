@@ -29,6 +29,7 @@ export async function POST(request: Request) {
     
     const username = formData.get('username') as string;
     const platform = formData.get('platform') as string;
+    const category = formData.get('category') as string;
     const comment = formData.get('comment') as string;
     const file = formData.get('screenshot') as File | null;
 
@@ -52,8 +53,10 @@ export async function POST(request: Request) {
       id: Date.now().toString(),
       username: username || 'Unknown',
       platform: platform || 'Other',
+      category: category || 'General',
       comment: comment || '',
       screenshot: screenshotUrl,
+      upvotes: 0,
       date: new Date().toISOString()
     };
 
@@ -74,12 +77,40 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const { id } = await request.json();
+
+    if (redis) {
+      let posts: any[] = (await redis.get('truthboard_posts')) || [];
+      const postIndex = posts.findIndex(p => p.id === id);
+      
+      if (postIndex !== -1) {
+        posts[postIndex].upvotes = (posts[postIndex].upvotes || 0) + 1;
+        await redis.set('truthboard_posts', posts);
+      } else {
+        return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      }
+    } else {
+      const postIndex = fallbackPosts.findIndex(p => p.id === id);
+      if (postIndex !== -1) {
+        fallbackPosts[postIndex].upvotes = (fallbackPosts[postIndex].upvotes || 0) + 1;
+      } else {
+        return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      }
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Upvote error:", error);
+    return NextResponse.json({ error: 'Failed to upvote' }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const { id, password } = await request.json();
 
-    // Check if the provided password matches the Vercel Environment Variable
-    // If running locally without .env, we can fallback to "admin123" for testing
     const correctPassword = process.env.ADMIN_PASSWORD || "admin123";
 
     if (password !== correctPassword) {
@@ -94,7 +125,6 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ error: 'Post not found' }, { status: 404 });
       }
 
-      // If it has a screenshot, delete it from Vercel Blob to save space
       if (postToDelete.screenshot && process.env.BLOB_READ_WRITE_TOKEN) {
         try {
           await del(postToDelete.screenshot);

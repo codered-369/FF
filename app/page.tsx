@@ -88,6 +88,22 @@ export default function Home() {
     }
   };
 
+  const handleUpvote = async (id: string) => {
+    // Optimistic UI update
+    setPosts(posts.map(p => p.id === id ? { ...p, upvotes: (p.upvotes || 0) + 1 } : p));
+    
+    try {
+      await fetch("/api/posts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+    } catch (err) {
+      // Revert if failed
+      fetchPosts();
+    }
+  };
+
   // Derived State for Stats
   const totalEvidence = posts.length;
   const platformCounts = posts.reduce((acc, post) => {
@@ -101,7 +117,8 @@ export default function Home() {
   // Derived State for Filtering
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          post.comment.toLowerCase().includes(searchQuery.toLowerCase());
+                          post.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (post.category && post.category.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesPlatform = activePlatformFilter === "All" || post.platform === activePlatformFilter;
     return matchesSearch && matchesPlatform;
   });
@@ -148,7 +165,7 @@ export default function Home() {
             <span style={{ position: "absolute", left: "1.5rem", top: "50%", transform: "translateY(-50%)", fontSize: "1.2rem", opacity: 0.5 }}>🔍</span>
             <input 
               type="text" 
-              placeholder="Search by username or keyword..." 
+              placeholder="Search by username, tag, or keyword..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -177,15 +194,29 @@ export default function Home() {
               <input type="text" name="username" className="input-field" placeholder="e.g. @toxic_user123" required />
             </div>
             
-            <div>
-              <label style={{ display: "block", marginBottom: "0.5rem" }}>Platform</label>
-              <select name="platform" className="input-field">
-                <option value="X (Twitter)">X (Twitter)</option>
-                <option value="Instagram">Instagram</option>
-                <option value="Facebook">Facebook</option>
-                <option value="Reddit">Reddit</option>
-                <option value="Other">Other</option>
-              </select>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>Platform</label>
+                <select name="platform" className="input-field">
+                  <option value="X (Twitter)">X (Twitter)</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="Reddit">Reddit</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              
+              <div>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>Category Tag</label>
+                <select name="category" className="input-field">
+                  <option value="#ToxicBehavior">#ToxicBehavior</option>
+                  <option value="#Scam">#Scam</option>
+                  <option value="#HateSpeech">#HateSpeech</option>
+                  <option value="#FakeFeminism">#FakeFeminism</option>
+                  <option value="#Harassment">#Harassment</option>
+                  <option value="#General">#General</option>
+                </select>
+              </div>
             </div>
 
             <div>
@@ -265,9 +296,16 @@ export default function Home() {
               filteredPosts.map((post, i) => (
                 <div key={post.id} className="post-card" style={{ animationDelay: `${i * 0.05}s` }}>
                   <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                       <span style={{ fontWeight: 700, fontSize: "1.2rem", letterSpacing: "0.5px" }}>{post.username}</span>
-                      <span style={{ fontSize: "0.85rem", color: "var(--accent-purple)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{post.platform}</span>
+                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.85rem", color: "var(--accent-purple)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{post.platform}</span>
+                        {post.category && (
+                          <span style={{ fontSize: "0.75rem", background: "rgba(255,255,255,0.1)", padding: "0.2rem 0.6rem", borderRadius: "10px", color: "var(--text-muted)" }}>
+                            {post.category}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                       <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
@@ -289,10 +327,33 @@ export default function Home() {
                       "{post.comment}"
                     </div>
                     {post.screenshot && (
-                      <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                        <img src={post.screenshot} alt="Evidence" style={{ width: "100%", height: "auto", display: "block" }} />
+                      <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)", marginBottom: "1rem" }}>
+                        <img src={post.screenshot} alt="Evidence against user" style={{ width: "100%", height: "auto", display: "block" }} />
                       </div>
                     )}
+                    
+                    {/* Community Verification Button */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1rem", marginTop: "1rem" }}>
+                      <button 
+                        onClick={() => handleUpvote(post.id)}
+                        style={{
+                          background: "rgba(139, 92, 246, 0.15)", border: "1px solid rgba(139, 92, 246, 0.3)",
+                          color: "#fff", padding: "0.5rem 1rem", borderRadius: "20px", fontSize: "0.9rem",
+                          cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem",
+                          transition: "all 0.3s ease"
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.3)"; e.currentTarget.style.boxShadow = "0 0 15px rgba(139, 92, 246, 0.4)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)"; e.currentTarget.style.boxShadow = "none"; }}
+                      >
+                        🛡️ Corroborate
+                      </button>
+                      
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                        <span style={{ fontWeight: "bold", color: (post.upvotes || 0) > 10 ? "var(--accent-red)" : "inherit" }}>{post.upvotes || 0}</span> 
+                        people verified this
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               ))
