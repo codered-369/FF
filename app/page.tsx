@@ -168,13 +168,15 @@ export default function Home() {
             boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)", backdropFilter: "blur(5px)"
           }}>
             <div style={{ textAlign: "center", padding: "0 1rem" }}>
-              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem" }}>Total Evidence Collected</div>
-              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-red)" }}>{totalEvidence}</div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem" }}>
+                <span style={{ fontSize: "1.1rem" }}>👁️</span> Total Reports Submitted
+              </div>
+              <div style={{ fontSize: "2.5rem", fontWeight: "800", color: "var(--accent-red)", textShadow: "0 0 20px rgba(239, 68, 68, 0.4)" }}>{totalEvidence}</div>
             </div>
             <div style={{ width: "1px", background: "rgba(255,255,255,0.1)" }}></div>
             <div style={{ textAlign: "center", padding: "0 1rem" }}>
-              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem" }}>Most Reported Platform</div>
-              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-purple)" }}>{mostReportedPlatform}</div>
+              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem", marginTop: "0.2rem" }}>Most Reported Platform</div>
+              <div style={{ fontSize: "2rem", fontWeight: "800", color: "var(--accent-purple)", marginTop: "0.5rem" }}>{mostReportedPlatform}</div>
             </div>
           </div>
 
