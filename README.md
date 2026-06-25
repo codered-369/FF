@@ -20,40 +20,6 @@ TruthBoard is a modern, community-driven social database built to bring internet
 - **Database:** Upstash Redis (Serverless)
 - **File Storage:** Vercel Blob
 
-## 💻 Running Locally
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/FF.git
-   cd FF/vercel-expose-app
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Set up Environment Variables:**
-   Create a `.env.local` file in the root directory and add your keys:
-   ```env
-   # Upstash Redis (Database)
-   KV_REST_API_URL="your_upstash_url"
-   KV_REST_API_TOKEN="your_upstash_token"
-
-   # Vercel Blob (Image Storage)
-   BLOB_READ_WRITE_TOKEN="your_vercel_blob_token"
-
-   # Security
-   ADMIN_PASSWORD="your_secure_password"
-   ```
-
-4. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
 ## 🛡️ Moderation & Administration
 TruthBoard includes a built-in administrative capability. Posts and images can be permanently deleted from the database and Blob storage using an admin password prompt, ensuring the platform can be moderated effectively against false reports.
 
