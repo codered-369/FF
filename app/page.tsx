@@ -125,6 +125,19 @@ export default function Home() {
 
   const platforms = ["All", "X (Twitter)", "Instagram", "Facebook", "Reddit", "Other"];
 
+  const getProfileUrl = (platform: string, username: string) => {
+    // Strip the @ symbol if the user included it
+    const cleanUsername = username.replace(/^@/, '').trim();
+    
+    switch (platform) {
+      case "X (Twitter)": return `https://x.com/${cleanUsername}`;
+      case "Instagram": return `https://instagram.com/${cleanUsername}`;
+      case "Facebook": return `https://facebook.com/${cleanUsername}`;
+      case "Reddit": return `https://reddit.com/user/${cleanUsername}`;
+      default: return `https://www.google.com/search?q=${encodeURIComponent(cleanUsername)}`;
+    }
+  };
+
   return (
     <>
       <div className="background-elements">
@@ -297,9 +310,17 @@ export default function Home() {
                 <div key={post.id} className="post-card" style={{ animationDelay: `${i * 0.05}s` }}>
                   <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <span style={{ fontWeight: 700, fontSize: "1.2rem", letterSpacing: "0.5px" }}>{post.username}</span>
+                      <a 
+                        href={getProfileUrl(post.platform, post.username)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ fontWeight: 700, fontSize: "1.2rem", letterSpacing: "0.5px", color: "var(--accent-purple)", textDecoration: "none" }}
+                        title={`View ${post.username} on ${post.platform}`}
+                      >
+                        {post.username} ↗
+                      </a>
                       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <span style={{ fontSize: "0.85rem", color: "var(--accent-purple)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{post.platform}</span>
+                        <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{post.platform}</span>
                         {post.category && (
                           <span style={{ fontSize: "0.75rem", background: "rgba(255,255,255,0.1)", padding: "0.2rem 0.6rem", borderRadius: "10px", color: "var(--text-muted)" }}>
                             {post.category}
