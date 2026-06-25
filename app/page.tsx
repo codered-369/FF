@@ -392,21 +392,49 @@ export default function Home() {
                       </div>
                     )}
                     
-                    {/* Community Verification Button */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1rem", marginTop: "1rem" }}>
-                      <button 
-                        onClick={() => handleUpvote(post.id)}
-                        style={{
-                          background: "rgba(139, 92, 246, 0.15)", border: "1px solid rgba(139, 92, 246, 0.3)",
-                          color: "#fff", padding: "0.5rem 1rem", borderRadius: "20px", fontSize: "0.9rem",
-                          cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem",
-                          transition: "all 0.3s ease"
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.3)"; e.currentTarget.style.boxShadow = "0 0 15px rgba(139, 92, 246, 0.4)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)"; e.currentTarget.style.boxShadow = "none"; }}
-                      >
-                        🛡️ Corroborate
-                      </button>
+                    {/* Action Buttons */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1rem", marginTop: "1rem", flexWrap: "wrap", gap: "1rem" }}>
+                      <div style={{ display: "flex", gap: "1rem" }}>
+                        <button 
+                          onClick={() => handleUpvote(post.id)}
+                          style={{
+                            background: "rgba(139, 92, 246, 0.15)", border: "1px solid rgba(139, 92, 246, 0.3)",
+                            color: "#fff", padding: "0.5rem 1rem", borderRadius: "20px", fontSize: "0.9rem",
+                            cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem",
+                            transition: "all 0.3s ease"
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.3)"; e.currentTarget.style.boxShadow = "0 0 15px rgba(139, 92, 246, 0.4)"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)"; e.currentTarget.style.boxShadow = "none"; }}
+                        >
+                          🛡️ Corroborate
+                        </button>
+
+                        <button 
+                          onClick={() => {
+                            const url = `${window.location.origin}/user/${encodeURIComponent(post.username.replace(/^@/, '').trim())}`;
+                            if (navigator.share) {
+                              navigator.share({
+                                title: `Evidence against ${post.username}`,
+                                text: `Check out this public accountability report regarding ${post.username} on TruthBoard.`,
+                                url: url
+                              }).catch(console.error);
+                            } else {
+                              navigator.clipboard.writeText(url);
+                              alert("Profile link copied to clipboard!");
+                            }
+                          }}
+                          style={{
+                            background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)",
+                            color: "#fff", padding: "0.5rem 1rem", borderRadius: "20px", fontSize: "0.9rem",
+                            cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem",
+                            transition: "all 0.3s ease"
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)"}
+                          onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)"}
+                        >
+                          📤 Share
+                        </button>
+                      </div>
                       
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>
                         <span style={{ fontWeight: "bold", color: (post.upvotes || 0) > 10 ? "var(--accent-red)" : "inherit" }}>{post.upvotes || 0}</span> 

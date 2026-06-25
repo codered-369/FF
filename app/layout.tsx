@@ -6,8 +6,20 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-heading" });
 
 export const metadata: Metadata = {
-  title: "Expose The Truth - Accountability Board",
-  description: "Bringing internet accountability to light. Share public remarks to warn others.",
+  title: "TruthBoard - Public Accountability Platform",
+  description: "Bringing internet accountability to light. Search the database or share evidence to warn others about toxic behavior, scams, and harassment.",
+  openGraph: {
+    title: "TruthBoard - Public Accountability Platform",
+    description: "Bringing internet accountability to light. Search the database or share evidence to warn others.",
+    url: "https://expose-lac-two.vercel.app",
+    siteName: "TruthBoard",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TruthBoard - Public Accountability Platform",
+    description: "Bringing internet accountability to light. Search the database or share evidence to warn others.",
+  }
 };
 
 export default function RootLayout({
