@@ -221,14 +221,27 @@ export default function Home() {
               
               <div>
                 <label style={{ display: "block", marginBottom: "0.5rem" }}>Category Tag</label>
-                <select name="category" className="input-field">
-                  <option value="#ToxicBehavior">#ToxicBehavior</option>
-                  <option value="#Scam">#Scam</option>
-                  <option value="#HateSpeech">#HateSpeech</option>
-                  <option value="#FakeFeminism">#FakeFeminism</option>
-                  <option value="#Harassment">#Harassment</option>
-                  <option value="#General">#General</option>
-                </select>
+                <input 
+                  type="text" 
+                  name="category" 
+                  list="category-options" 
+                  className="input-field" 
+                  placeholder="e.g. #Scam or type your own" 
+                  defaultValue="#ToxicBehavior"
+                  required 
+                />
+                <datalist id="category-options">
+                  <option value="#ToxicBehavior" />
+                  <option value="#Scam" />
+                  <option value="#HateSpeech" />
+                  <option value="#FakeFeminism" />
+                  <option value="#Harassment" />
+                  <option value="#Creep" />
+                  <option value="#Fraud" />
+                  <option value="#Misinformation" />
+                  <option value="#Bullying" />
+                  <option value="#General" />
+                </datalist>
               </div>
             </div>
 
